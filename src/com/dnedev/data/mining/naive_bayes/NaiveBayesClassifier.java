@@ -53,7 +53,7 @@ public class NaiveBayesClassifier {
     private double calculateAccuracy(List<DataInstance> testSet, List<DataInstance> learnSet) {
         int totalGuessed = 0;
 
-        Probabilities probabilities = new Probabilities(this.classes, testSet, this.numberOfAttributes);
+        Probabilities probabilities = new Probabilities(this.classes, learnSet, this.numberOfAttributes);
 
         for (DataInstance dataInstance : testSet) {
             if (dataInstance.getClassName().equals(probabilities.guessClass(dataInstance.getAttributes()))) {

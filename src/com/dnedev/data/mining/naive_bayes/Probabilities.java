@@ -82,6 +82,7 @@ public class Probabilities {
 
 
             if (currentProbability >= bestProbability) {
+                bestProbability = currentProbability;
                 guessedClass = currentClass;
             }
         }
