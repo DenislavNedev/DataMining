@@ -1,13 +1,5 @@
 package com.dnedev.data.mining.kmeans;
 
-import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYChartBuilder;
-import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.style.Styler;
-import org.knowm.xchart.style.markers.SeriesMarkers;
-
-import java.awt.*;
 import java.io.File;
 import java.util.List;
 import java.util.*;
@@ -24,10 +16,16 @@ public class KMeans {
     private double minY;
     private Map<Point, Centroid> clusters;
 
+    public Set<Centroid> getCentroids() {
+        return centroids;
+    }
+
+    public Map<Point, Centroid> getClusters() {
+        return clusters;
+    }
+
     public KMeans(int numberOfClusters, String filePath) {
         this.numberOfClusters = numberOfClusters;
-        this.centroids = new HashSet<>();
-        this.clusters = new HashMap<>();
         this.random = new Random();
         this.points = new ArrayList<>();
         this.minX = Double.MAX_VALUE;
@@ -37,54 +35,27 @@ public class KMeans {
         loadDataSetFromFile(filePath);
     }
 
+    public double getMeanFromPointToCluster() {
+        double sumValue = Double.MIN_VALUE;
+
+        for (Map.Entry<Point, Centroid> entry : clusters.entrySet()) {
+            sumValue += entry.getKey().calculateDistanceBetweenPoints(entry.getValue());
+        }
+        return sumValue;
+    }
+
     public void calculateClusters() {
+        this.centroids = new HashSet<>();
+        this.clusters = new HashMap<>();
+
         initRandomCentroids(this.numberOfClusters);
         initDefaultClusters(this.points, this.centroids);
         recalculateCenterOfClusters(this.centroids, this.clusters);
-
 
         while (recalculatePointCentroids(this.clusters, this.centroids)) {
             recalculateCenterOfClusters(this.centroids, this.clusters);
         }
 
-
-    }
-
-    public void showClusters() {
-        XYChart chart = new XYChartBuilder().width(900).height(700).title("KMean").xAxisTitle("X").yAxisTitle("Y").build();
-
-        chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-        chart.getStyler().setChartTitleVisible(true);
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
-        chart.getStyler().setMarkerSize(20);
-
-        int i = 0;
-        List<Double> centroidDataX = new ArrayList<>();
-        List<Double> centroidDataY = new ArrayList<>();
-        for (Centroid currentCentroid : centroids) {
-
-            centroidDataX.add(currentCentroid.getX());
-            centroidDataY.add(currentCentroid.getY());
-
-            List<Double> dataX = new ArrayList<>();
-            List<Double> dataY = new ArrayList<>();
-
-            for (Map.Entry<Point, Centroid> entry : clusters.entrySet()) {
-                if (entry.getValue().equals(currentCentroid)) {
-                    dataX.add(entry.getKey().getX());
-                    dataY.add(entry.getKey().getY());
-                }
-            }
-            if (!dataX.isEmpty() && !dataY.isEmpty()) {
-                chart.addSeries(Integer.toString(i), dataX, dataY);
-                i++;
-            }
-        }
-
-        XYSeries series = chart.addSeries("Centroids", centroidDataX, centroidDataY);
-        series.setMarker(SeriesMarkers.DIAMOND);
-        series.setMarkerColor(new Color(255, 0, 0));
-        new SwingWrapper(chart).displayChart();
     }
 
     private boolean recalculatePointCentroids(Map<Point, Centroid> clusters, Set<Centroid> centroids) {
