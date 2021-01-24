@@ -73,7 +73,7 @@ public class TicTacToe {
             for (int j = 0; j < BOARD_SIZE; j++) {
                 if (board[i][j].equals(EMPTY_SPACE)) {
                     board[i][j] = COMPUTER_SYMBOL;
-                    int score = minMax(board, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                    int score = minMax(board, false, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                     board[i][j] = EMPTY_SPACE;
                     if (score > bestScore) {
                         bestScore = score;
@@ -149,10 +149,10 @@ public class TicTacToe {
         return a.equals(b) && b.equals(c) && !a.equals(EMPTY_SPACE);
     }
 
-    private int minMax(String[][] board, boolean isMaximizing, int alpha, int beta) {
+    private int minMax(String[][] board, boolean isMaximizing, int alpha, int beta, int depth) {
         String winner = checkGameStatus().getWinner();
         if (winner != null) {
-            return getScore(winner);
+            return getScore(winner, depth);
         }
 
         if (isMaximizing) {
@@ -162,7 +162,7 @@ public class TicTacToe {
                 for (int j = 0; j < BOARD_SIZE; j++) {
                     if (board[i][j].equals(EMPTY_SPACE)) {
                         board[i][j] = COMPUTER_SYMBOL;
-                        int score = minMax(board, false, alpha, beta);
+                        int score = minMax(board, false, alpha, beta, depth++);
                         board[i][j] = EMPTY_SPACE;
                         bestScore = Math.max(score, bestScore);
                         alpha = Math.max(alpha, bestScore);
@@ -178,7 +178,7 @@ public class TicTacToe {
                 for (int j = 0; j < BOARD_SIZE; j++) {
                     if (board[i][j].equals(EMPTY_SPACE)) {
                         board[i][j] = HUMAN_SYMBOL;
-                        int score = minMax(board, true, alpha, beta);
+                        int score = minMax(board, true, alpha, beta, depth++);
                         board[i][j] = EMPTY_SPACE;
                         bestScore = Math.min(score, bestScore);
                         beta = Math.min(beta, bestScore);
@@ -190,12 +190,12 @@ public class TicTacToe {
         }
     }
 
-    private int getScore(String player) {
+    private int getScore(String player, int depth) {
         switch (player) {
             case HUMAN_SYMBOL:
-                return -1;
+                return -10 + depth;
             case COMPUTER_SYMBOL:
-                return 1;
+                return 10 - depth;
         }
         return 0;
     }
